@@ -12,9 +12,27 @@ services:
       - NODE_ENV=production
     depends_on: 
       - broker
+      - maria_db
 
-  
-      
+  maria_db:
+    container_name: "IoT_DB"
+    image: "mariadb:10.5.9"
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+
+  phpmyadmin:
+    container_name: "phpadmin"
+    image: "phpmyadmin"
+    restart: always
+    ports: 
+      - "8086:80"
+    environment: 
+      - PMA_HOST=maria_db
+      - PMA_PORT=3306
+    depends_on: 
+      - maria_db
+
   broker:
     container_name: "EMQX"
     image: "emqx/emqx:4.2.8"
@@ -23,6 +41,8 @@ services:
       - "EMQX_NAME=emqx"
       - "EMQX_HOST=127.0.0.1"
     env_file: ./.config/emqx.env
+    depends_on: 
+      - maria_db
     ports: 
       - "8883:8883"   #mqtt:ssl
       - "1883:1883"   #mqtt:tcp
@@ -36,6 +56,22 @@ services:
       - vol-emqx-etc:/opt/emqx/etc
       - vol-emqx-log:/opt/emqx/log
 
+  portainer:
+    container_name: "Portainer"
+    image: "portainer/portainer-ce"
+    restart: on-failure
+    ports: 
+      - "8000:8000"
+      - "9000:9000"
+    volumes: 
+      - vol-portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on: 
+      - broker
+      - app
+      - phpmyadmin
+      - maria_db
+
 volumes:
   vol-emqx-data:
     name: emqx-data
@@ -43,3 +79,5 @@ volumes:
     name: emqx-etc
   vol-emqx-log:
     name: emqx-log 
+  vol-portainer_data:
+    name: portainer_data
