@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+
+  app:
+    container_name: "app_js"
+    build: .
+    image: "dennisdf/iot:1.0"
+    command: npm start
+    restart: on-failure
+    environment: 
+      - NODE_ENV=production
+    depends_on: 
+      - broker
+
+  
+      
+  broker:
+    container_name: "EMQX"
+    image: "emqx/emqx:4.2.8"
+    restart: on-failure
+    environment: 
+      - "EMQX_NAME=emqx"
+      - "EMQX_HOST=127.0.0.1"
+    env_file: ./.config/emqx.env
+    ports: 
+      - "8883:8883"   #mqtt:ssl
+      - "1883:1883"   #mqtt:tcp
+      - "11883:11883" #mqtt:tcp
+      - "18083:18083" #http:dashboard
+      - "8081:8081"   #http:api
+      - "8083:8083"   #mqtt:ws
+      - "8084:8084"   #mqtt:wss
+    volumes:
+      - vol-emqx-data:/opt/emqx/data
+      - vol-emqx-etc:/opt/emqx/etc
+      - vol-emqx-log:/opt/emqx/log
+
+volumes:
+  vol-emqx-data:
+    name: emqx-data
+  vol-emqx-etc:
+    name: emqx-etc
+  vol-emqx-log:
+    name: emqx-log 
