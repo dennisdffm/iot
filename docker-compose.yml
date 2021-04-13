@@ -6,7 +6,6 @@ services:
     container_name: "app_js"
     build: .
     image: "dennisdf/iot:1.0"
-    command: npm start
     restart: on-failure
     environment: 
       - NODE_ENV=production
@@ -15,14 +14,18 @@ services:
       - maria_db
 
   maria_db:
-    container_name: "IoT_DB"
+    container_name: "MariaDB"
     image: "mariadb:10.5.9"
     restart: always
+    ports: 
+      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=admin
+    volumes: 
+      - vol-mariadb-data:/var/lib/mysql
 
   phpmyadmin:
-    container_name: "phpadmin"
+    container_name: "PHPMyAdmin"
     image: "phpmyadmin"
     restart: always
     ports: 
@@ -35,7 +38,7 @@ services:
 
   broker:
     container_name: "EMQX"
-    image: "emqx/emqx:4.2.8"
+    image: "emqx/emqx:4.2.9"
     restart: on-failure
     environment: 
       - "EMQX_NAME=emqx"
@@ -55,16 +58,16 @@ services:
       - vol-emqx-data:/opt/emqx/data
       - vol-emqx-etc:/opt/emqx/etc
       - vol-emqx-log:/opt/emqx/log
+      - vol-emqx-lib:/opt/emqx/lib
 
   portainer:
     container_name: "Portainer"
     image: "portainer/portainer-ce"
     restart: on-failure
     ports: 
-      - "8000:8000"
       - "9000:9000"
     volumes: 
-      - vol-portainer_data:/data
+      - vol-portainer-data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on: 
       - broker
@@ -79,5 +82,9 @@ volumes:
     name: emqx-etc
   vol-emqx-log:
     name: emqx-log 
-  vol-portainer_data:
-    name: portainer_data
+  vol-emqx-lib:
+    name: emqx-lib 
+  vol-portainer-data:
+    name: portainer-data
+  vol-mariadb-data:
+    name: mariadb-data

@@ -1,0 +1,2 @@
+FROM emqx/emqx:4.2.8
+ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]

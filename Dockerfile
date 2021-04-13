@@ -3,3 +3,4 @@ WORKDIR /home/node/app/js
 COPY . .
 RUN npm install
 USER node
+CMD npm start

@@ -4,6 +4,7 @@
   "description": "App que se comunica con el broker EmqX y la base de datos MariaDB",
   "main": "index.js",
   "dependencies": {
+    "mariadb": "^2.5.3",
     "mqtt": "^4.2.6",
     "pm2": "^4.5.5"
   },
